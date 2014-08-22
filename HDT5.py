@@ -10,32 +10,48 @@ import simpy
 
 
 RANDOM_SEED = 42
+random_seed = 2
 PROCESS = 25  # numero de procesos
 INTERVAL_PROCESS = 1.0  # Generate new customers roughly every x seconds
 MIN_PROCESS = 0  # Min. customer patience
 MAX_PROCESS = 3  # Max. customer patience
 
-
-
-def source(self, env, number, interval, counter):
-    """Source generates customers randomly"""
+def init(self, env):
+    self.counter = simpy.Resource(env, capacity=1)
+    self.cpu = simpy.Container(env, init=0, capacity=100)
     
+def monitor(self, env, router):
+    while True:
+        if self.cpu.level = 0:
+            print('Process terminated %s' %env.now)
+
+    router = random.randint(1,2)
+    if router = 2:
+        ready()
+    else:
+        waiting()
+        
+def waiting():
+    
+
+def ready(self, env, number, interval, counter):
+    """Source generates customers randomly"""
     for i in range(number):
         c = proceso(env, 'Proceso%02d' % i, counter, time_process=10.0)
         env.process(c)
         t = random.expovariate(1.0 / interval)
         yield env.timeout(t)
 
-def customer(env, name, counter, time_process):
+def proceso(env, name, counter, time_process):
     global promedio
     """Customer arrives, is served and leaves."""
     arrive = env.now
     print('%7.4f %s: Here I am' % (arrive, name))
     
     with counter.request() as req:
-        patience = random.uniform(MIN_PATIENCE, MAX_PATIENCE)
+        PROCESS = random.uniform(MIN_PROCESS, MAX_PROCESS)
         # Wait for the counter or abort at the end of our tether
-        results = yield req | env.timeout(patience)
+        results = yield req | env.timeout(PROCESS)
 
         wait = env.now - arrive
         promedio = promedio + wait
@@ -52,12 +68,14 @@ def customer(env, name, counter, time_process):
             print('%7.4f %s: RENEGED after %6.3f' % (env.now, name, wait))
 
 # Setup and start the simulation
-print('Bank renege')
+
 random.seed(RANDOM_SEED)
+random.seed(random_seed)
+RAM = random.randint(1,10)
 env = simpy.Environment()
 
 # Start processes and run
-counter = simpy.Resource(env, capacity=1)
+
 env.process(source(env, NEW_CUSTOMERS, INTERVAL_CUSTOMERS, counter))
 promedio = 0
 env.run()
