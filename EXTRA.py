@@ -3,7 +3,7 @@ import random
 import simpy
 
 RANDOM_SEED = 2
-PROCESS = 25  
+PROCESS = 200  
 INTERVAL_CPU = 1.0  
 MIN_PROCESS = 0 
 MAX_PROCESS = 3
@@ -14,6 +14,23 @@ def ready(env, number, interval, counter):
         env.process(c)
         t = random.expovariate(1.0 / interval)
         yield env.timeout(t)
+
+def monitorCPU(self, env):
+    ProRandomized = random.randint(1,2)
+    while True:
+        if ProRandomized == 1:
+            if RAMQn.level == MAX_PROCESS:
+                print('%7.4f %s: Waiting Mode >>>' % (arrive, name))
+                env.process(Tank(env, CPUFlow))
+            else:
+                print('%7.4f %s: Pass-On >>>' % (arrive, name))
+                env.process(ready(env, PROCESS, INTERVAL_CPU, counter))                
+        else:
+            env.process(ready(env, PROCESS, INTERVAL_CPU, counter))            
+
+def Tank(env, CPUFlow):
+    yield env.timeout(MIN_PROCESS)
+    print('%7.4f %s: Delaying por terminating rest Process >/<' % (arrive, name))
 
 def proceso(env, name, counter, time_Processed):
     global profilerSim    
@@ -47,8 +64,9 @@ env = simpy.Environment()
 
 # Start processes and run
 counter = simpy.Resource(env, capacity=1)
-RAMQn = simpy.Container(env, capacity=100)
+RAMQn = simpy.Container(env, init=3, capacity=100)
 env.process(ready(env, PROCESS, INTERVAL_CPU, counter))
+env.process(monitorCPU(env, self))
 profilerSim = 0
 env.run()
 print "Tiempo total de Corrida: " , profilerSim, "promedio: " , profilerSim/25.0
