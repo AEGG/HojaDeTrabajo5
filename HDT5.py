@@ -19,6 +19,7 @@ MAX_PROCESS = 3  # Max. customer patience
 def init(self, env):
     self.counter = simpy.Resource(env, capacity=1)
     self.cpu = simpy.Container(env, init=0, capacity=100)
+    self.task = env.process(ready(env, PROCESS, INTERVAL_PROCESS, counter))    
     
 def monitor(self, env, router):
     while True:
@@ -36,7 +37,7 @@ def waiting():
 
 def ready(self, env, number, interval, counter):
     for i in range(number):
-        c = proceso(env, 'Proceso%02d' % i, counter, time_process=10.0)
+        c = proceso(env, 'Proceso%02d' % i, counter.counter.capacity, time_process=10.0)
         env.process(c)
         t = random.expovariate(1.0 / interval)
         yield env.timeout(t)
@@ -46,7 +47,7 @@ def proceso(env, name, counter, time_process):
     arrive = env.now
     print('%7.4f %s: Proceso llegado' % (arrive, name))
     
-    with counter.request() as req:
+    with counter.counter.request() as req:
         PROCESS = random.uniform(MIN_PROCESS, MAX_PROCESS)
         # Wait for the counter or abort at the end of our tether
         results = yield req | env.timeout(PROCESS)
@@ -73,8 +74,7 @@ RAM = random.randint(1,10)
 env = simpy.Environment()
 
 # Start processes and run
-
-env.process(ready(env, PROCESS, INTERVAL_PROCESS, ))
+task()
 promedio = 0
 env.run()
 print "tiempo total de espera: " , promedio, "promedio: " , promedio/5.0
