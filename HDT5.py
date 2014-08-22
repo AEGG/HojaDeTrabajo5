@@ -22,20 +22,19 @@ def init(self, env):
     
 def monitor(self, env, router):
     while True:
-        if self.cpu.level = 0:
+        if self.cpu.level == 0:
             print('Process terminated %s' %env.now)
 
     router = random.randint(1,2)
-    if router = 2:
+    if router == 2:
         ready()
     else:
         waiting()
         
 def waiting():
-    
+    print('Process waiting')    
 
 def ready(self, env, number, interval, counter):
-    """Source generates customers randomly"""
     for i in range(number):
         c = proceso(env, 'Proceso%02d' % i, counter, time_process=10.0)
         env.process(c)
@@ -44,9 +43,8 @@ def ready(self, env, number, interval, counter):
 
 def proceso(env, name, counter, time_process):
     global promedio
-    """Customer arrives, is served and leaves."""
     arrive = env.now
-    print('%7.4f %s: Here I am' % (arrive, name))
+    print('%7.4f %s: Proceso llegado' % (arrive, name))
     
     with counter.request() as req:
         PROCESS = random.uniform(MIN_PROCESS, MAX_PROCESS)
@@ -76,7 +74,7 @@ env = simpy.Environment()
 
 # Start processes and run
 
-env.process(source(env, NEW_CUSTOMERS, INTERVAL_CUSTOMERS, counter))
+env.process(ready(env, PROCESS, INTERVAL_PROCESS, ))
 promedio = 0
 env.run()
 print "tiempo total de espera: " , promedio, "promedio: " , promedio/5.0
