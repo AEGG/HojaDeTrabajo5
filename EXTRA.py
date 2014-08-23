@@ -3,7 +3,7 @@ import random
 import simpy
 
 RANDOM_SEED = 2
-PROCESS = 10 
+PROCESS = 50 
 INTERVAL_CPU = 1.0  
 MIN_PROCESS = 0 
 MAX_PROCESS = 3
