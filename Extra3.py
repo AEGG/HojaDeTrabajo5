@@ -3,6 +3,7 @@
 # Seccion 30
 # Aaron Giron 13042 / Kuk Ho Chung 13279
 # Simulador de ejecucion de sistema operativo
+# Referencia: ejemplo3.py para poder realizar este programa
 
 # Importando las librerias de aleatoriedad y de simpy
 import random
@@ -11,7 +12,7 @@ import simpy
 # Definicion generalo de los variables iniciales
 # para cantidad de procesos a ejcutar principalmente
 RANDOM_SEED = 2
-NEW_PROCESS = 200
+NEW_PROCESS = 100
 INTERVAL_PROCESS = 1.0 
 
 # Generador de los procesos con ciertas caracteristicas de requerimientos
