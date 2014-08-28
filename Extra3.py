@@ -12,7 +12,7 @@ import simpy
 # Definicion generalo de los variables iniciales
 # para cantidad de procesos a ejcutar principalmente
 RANDOM_SEED = 2
-NEW_PROCESS = 100
+NEW_PROCESS = 10
 INTERVAL_PROCESS = 1.0 
 
 # Generador de los procesos con ciertas caracteristicas de requerimientos
@@ -26,11 +26,12 @@ def source(env, number, interval, RAM ,CPU, lagTime):
         yield env.timeout(tm)
 
 # Proceso general del programa de simulador de sistema operativo
-def proceso(env, processID, memoryBlock, RAM, CPU, lagTime, Inst):
+def proceso(env, idtag, memoryBlock, RAM, CPU, lagTime, Inst):
     global timeSim # Definicion para simular el profiler como para contar el tiempo de ejecucion del simulador
     arrive = env.now # Definicion de ambiente actual = tiempo, como una variable
-    print('T: %7.4fs %s: Process/Instruction arrived >>' % (arrive, processID))
-    print('T: %7.4fs %s: Requiring RAM %s / Available RAM  %s' % (arrive, processID, Inst, RAM.level)) 
+    RAMOver = RAM.capacity - memoryBlock
+    print('T: %7.4fs %s: Process/Instruction arrived >>' % (arrive, idtag))
+    print('T: %7.4fs %s: Requiring RAM %s / Available RAM  %s' % (arrive, idtag, Inst, RAMOver)) 
 
     # Obtiene la memoria para el RAM como un dicho requerimiento
     with RAM.get(memoryBlock) as req:     
@@ -38,12 +39,12 @@ def proceso(env, processID, memoryBlock, RAM, CPU, lagTime, Inst):
         # Calculo de tiempo de espera alternamente
         wait = env.now - arrive        
         # Inicializacion de proceso y pide RAM a cierto proceso
-        print('T: %7.4fs %s: Arm/Trig: Ready >> RAM Request %6.3f' % (env.now, processID, RAM.level))
+        print('T: %7.4fs %s: Arm/Trig: Ready >> RAM Request %6.3f' % (arrive, idtag, RAM.level))
         # Condicion inicial que juega con las cantidad de instrucciones que llego
         while Inst > 0:
             with CPU.request() as reqCPU: # Pedida al CPU para poder ejecutar dicha instruccion
                 yield reqCPU
-                print('T: %7.4fs %s: Running instructions %6.3f' % (env.now, processID, Inst))
+                print('T: %7.4fs %s: Running instructions %6.3f' % (arrive, idtag, Inst))
 
                 yield env.timeout(1)
                 # condicion interna con instrucciones para ir terminando las instrucciones en dado caso necesario
@@ -57,18 +58,18 @@ def proceso(env, processID, memoryBlock, RAM, CPU, lagTime, Inst):
                 if nextWait == 1: # condicion cuando debe entrar modo de espera segun aleatoriedad
                     with lagTime.request() as reqlagTime: # Pide el tiempo de espera para la instruccion
                         yield reqlagTime 
-                        print ('T: %7.4fs %s: Waiting Mode >>' % (env.now, processID))
+                        print ('T: %7.4fs %s: Waiting Mode >>' % (arrive, idtag))
 
                         yield env.timeout(1)
                 # Instruccion terminado
-                print('T: %7.4fs %s: Ready >> Continue >>' % (env.now, processID))
+                print('T: %7.4fs %s: Ready >> Continue >>' % (arrive, idtag))
         # Tiempo de proceso en el momento actual
         ProcTime = env.now - arrive
-        print ('T: %7.4fs %s: Instruction Terminated, Exe.Time >> %s' % (env.now, processID, ProcTime))
+        print ('T: %7.4fs %s: Instruction Terminated, Exe.Time >> %s' % (env.now, idtag, ProcTime))
         # Devolucion de RAM despues del uso
         with RAM.put(memoryBlock) as reqReturnRAM:
             yield reqReturnRAM
-            print ('T: %7.4fs %s: Freeing used RAM %s' % (env.now, processID, memoryBlock))
+            print ('T: %7.4fs %s: Freeing used RAM %s' % (env.now, idtag, memoryBlock))
         # Calculo de tiempo actual de corridad de simulador
         timeSim = timeSim + (env.now - arrive)
         print('T: %7.4fs Memory Block / RAM Check %6.3f >> Current Time %s' % (env.now, RAM.level, timeSim))        
