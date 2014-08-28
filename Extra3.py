@@ -27,7 +27,7 @@ def source(env, number, interval, RAM ,CPU, lagTime):
 
 # Proceso general del programa de simulador de sistema operativo
 def proceso(env, idtag, memoryBlock, RAM, CPU, lagTime, Inst):
-    global timeSim # Definicion para simular el profiler como para contar el tiempo de ejecucion del simulador
+    global timeSim, timeDev# Definicion para simular el profiler como para contar el tiempo de ejecucion del simulador
     arrive = env.now # Definicion de ambiente actual = tiempo, como una variable
     RAMOver = RAM.capacity - memoryBlock
     print('T: %7.4fs %s: Process/Instruction arrived >>' % (arrive, idtag))
@@ -72,6 +72,7 @@ def proceso(env, idtag, memoryBlock, RAM, CPU, lagTime, Inst):
             print ('T: %7.4fs %s: Freeing used RAM %s' % (env.now, idtag, memoryBlock))
         # Calculo de tiempo actual de corridad de simulador
         timeSim = timeSim + (env.now - arrive)
+        timeDev = (timeSim*timeSim) + (timeDev)
         print('T: %7.4fs Memory Block / RAM Check %6.3f >> Current Time %s' % (env.now, RAM.level, timeSim))        
 
 # Inicia y empieza la simulacion
@@ -85,5 +86,6 @@ RAM = simpy.Container(env, init=100, capacity=100)
 lagTime = simpy.Resource(env, capacity=1)
 env.process(source(env, NEW_PROCESS, INTERVAL_PROCESS, RAM, CPU, lagTime))
 timeSim = 0
+timeDev = 0
 env.run()
-print "Tiempo Total de Ejecucion: " , timeSim, ": Promedio del tiempo: " , timeSim/25.0
+print "Tiempo Total de Ejecucion: " , timeSim, ": Promedio del tiempo: " , timeSim/NEW_PROCESS, ": Desviacion Estandar: " , ((timeDev/NEW_PROCESS)**(0.5))
